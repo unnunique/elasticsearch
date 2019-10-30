@@ -74,7 +74,6 @@ import org.elasticsearch.threadpool.ThreadPool;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -323,7 +322,7 @@ public class QueryPhase implements SearchPhase {
     }
 
     private static boolean searchWithCollector(SearchContext searchContext, ContextIndexSearcher searcher, Query query,
-                                               LinkedList<QueryCollectorContext> collectors, boolean hasFilterCollector, boolean timeoutSet) throws IOException {
+            LinkedList<QueryCollectorContext> collectors, boolean hasFilterCollector, boolean timeoutSet) throws IOException {
         // create the top docs collector last when the other collectors are known
         final TopDocsCollectorContext topDocsFactory = createTopDocsCollectorContext(searchContext, hasFilterCollector);
         // add the top docs collector, the first collector context in the chain
@@ -366,7 +365,7 @@ public class QueryPhase implements SearchPhase {
     // no search after, no scroll, no collapse, no track scores
     // this means we can use TopFieldCollector directly
     private static boolean searchWithCollectorManager(SearchContext searchContext, ContextIndexSearcher searcher, Query query,
-                                                      CheckedConsumer<List<LeafReaderContext>, IOException> leafSorter, boolean timeoutSet) throws IOException {
+            CheckedConsumer<List<LeafReaderContext>, IOException> leafSorter, boolean timeoutSet) throws IOException {
         final IndexReader reader = searchContext.searcher().getIndexReader();
         final int numHits = Math.min(searchContext.from() + searchContext.size(),  Math.max(1, reader.numDocs()));
         final SortAndFormats sortAndFormats = searchContext.sort();
@@ -387,37 +386,14 @@ public class QueryPhase implements SearchPhase {
             }
         }
 
-        CollectorManager<TopFieldCollector, Void> manager = new CollectorManager<>() {
-            @Override
-            public TopFieldCollector newCollector() throws IOException {
-                return TopFieldCollector.create(sortAndFormats.sort, numHits, null, totalHitsThreshold);
-            }
-            @Override
-            public Void reduce(Collection<TopFieldCollector> collectors) throws IOException {
-                TopFieldDocs[] topDocsArr = new TopFieldDocs[collectors.size()];
-                int i = 0;
-                for (TopFieldCollector collector : collectors) {
-                    topDocsArr[i++] = collector.topDocs();
-                }
-                // we have to set setShardIndex to true, as Lucene can't have ScoreDocs without shardIndex set
-                TopFieldDocs mergedTopDocs = TopDocs.merge(sortAndFormats.sort, 0, numHits, topDocsArr, true);
-                // reset shard index for all topDocs; ES will set shard index later during reduce stage
-                for (ScoreDoc scoreDoc : mergedTopDocs.scoreDocs) {
-                    scoreDoc.shardIndex = -1;
-                }
-                if (totalHits != null) { // we have already precalculated totalHits for the whole index
-                    mergedTopDocs = new TopFieldDocs(totalHits, mergedTopDocs.scoreDocs, mergedTopDocs.fields);
-                }
-                searchContext.queryResult().topDocs(new TopDocsAndMaxScore(mergedTopDocs, Float.NaN), sortAndFormats.formats);
-                return null;
-            }
-        };
+        CollectorManager<TopFieldCollector, TopFieldDocs> sharedManager = TopFieldCollector.createSharedManager(
+            sortAndFormats.sort, numHits, null, totalHitsThreshold);
 
         List<LeafReaderContext> leaves = new ArrayList<>(searcher.getIndexReader().leaves());
         leafSorter.accept(leaves);
         try {
             Weight weight = searcher.createWeight(searcher.rewrite(query), ScoreMode.TOP_SCORES, 1f);
-            searcher.search(leaves, weight, manager);
+            searcher.search(leaves, weight, sharedManager, searchContext.queryResult(), sortAndFormats.formats, totalHits);
         } catch (TimeExceededException e) {
             assert timeoutSet : "TimeExceededException thrown even though timeout wasn't set";
             if (searchContext.request().allowPartialSearchResults() == false) {
