@@ -556,14 +556,14 @@ public class QueryPhase implements SearchPhase {
         return true;
     }
 
+
     /**
      * Returns true if more than 50% of data in the index have the same value
      * The evaluation is approximation based on finding the median value and estimating its count
-     * Returns true if the total count of median values is greater or equal to half of the total count of documents
      */
     static boolean indexFieldHasDuplicateData(IndexReader reader, String field) throws IOException {
-        long globalDocCount = 0;
-        long globalMedianCount = 0;
+        long docsOpt = 0; // number of docs in segments that would benefit optimization
+        long docsNoOpt = 0; // number of docs in segments that would NOT benefit optimization, e.g. docs in segments with duplicate data
         for (LeafReaderContext lrc : reader.leaves()) {
             PointValues pointValues = lrc.reader().getPointValues(field);
             if (pointValues == null) continue;
@@ -572,31 +572,33 @@ public class QueryPhase implements SearchPhase {
                 continue;
             }
             assert(pointValues.size() == docCount); // TODO: modify the code to handle multiple values
-            globalDocCount += docCount;
-            long medianValue = estimateMedianValue(pointValues);
-            long medianCount = estimatePointCount(pointValues, medianValue, medianValue);
-            globalMedianCount += medianCount;
-        }
-        return (globalMedianCount >= globalDocCount/2);
-    }
 
-    static long estimateMedianValue(PointValues pointValues) throws IOException {
-        long minValue = LongPoint.decodeDimension(pointValues.getMinPackedValue(), 0);
-        long maxValue = LongPoint.decodeDimension(pointValues.getMaxPackedValue(), 0);
-        while (minValue < maxValue) {
-            long avgValue = Math.floorDiv(minValue + maxValue, 2);
-            long countLeft = estimatePointCount(pointValues, minValue, avgValue);
-            long countRight = estimatePointCount(pointValues, avgValue + 1, maxValue);
-            if (countLeft >= countRight) {
-                maxValue = avgValue;
+            int duplicateDocCount = docCount/2; // expected doc count of duplicate data
+            long minValue = LongPoint.decodeDimension(pointValues.getMinPackedValue(), 0);
+            long maxValue = LongPoint.decodeDimension(pointValues.getMaxPackedValue(), 0);
+            boolean hasDuplicateData = true;
+            while ((minValue < maxValue) && hasDuplicateData) {
+                long avgValue = Math.floorDiv(minValue, 2) + Math.floorDiv(maxValue, 2); // to avoid overflow first divide each value by 2
+                long countLeft = estimatePointCount(pointValues, minValue, avgValue);
+                long countRight = estimatePointCount(pointValues, avgValue + 1, maxValue);
+                if ((countLeft >= countRight) && (countLeft > duplicateDocCount) ) {
+                    maxValue = avgValue;
+                } else if ((countRight > countLeft) && (countRight > duplicateDocCount)) {
+                    minValue = avgValue + 1;
+                } else {
+                    hasDuplicateData = false;
+                }
+            }
+            if (hasDuplicateData) {
+                docsNoOpt += docCount;
             } else {
-                minValue = avgValue + 1;
+                docsOpt += docCount;
             }
         }
-        return maxValue;
+        return (docsNoOpt > docsOpt);
     }
 
-    static long estimatePointCount(PointValues pointValues, long minValue, long maxValue) {
+    private static long estimatePointCount(PointValues pointValues, long minValue, long maxValue) {
         final byte[] minValueAsBytes = new byte[Long.BYTES];
         LongPoint.encodeDimension(minValue, minValueAsBytes, 0);
         final byte[] maxValueAsBytes = new byte[Long.BYTES];
