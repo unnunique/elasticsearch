@@ -69,17 +69,22 @@ class Elasticsearch extends EnvironmentAwareCommand {
 
     /**
      * Main entry point for starting elasticsearch
+     * 启动elasticsearch 的入口
      */
     public static void main(final String[] args) throws Exception {
         // we want the JVM to think there is a security manager installed so that if internal policy decisions that would be based on the
         // presence of a security manager or lack thereof act as if there is a security manager present (e.g., DNS cache policy)
+        // 设置SecurityMananger, 用于安全检查，比如，root 用户权限等，文件读写权限，获取系统信息等权限等，进行控制。
         System.setSecurityManager(new SecurityManager() {
             @Override
             public void checkPermission(Permission perm) {
                 // grant all permissions so that we can later set the security manager to the one that we want
             }
         });
+
+        // 日志相关设置。对StatueLogger 注册错误监听器
         LogConfigurator.registerErrorListener();
+        // 构造Elasticsearch 对象。
         final Elasticsearch elasticsearch = new Elasticsearch();
         int status = main(args, elasticsearch, Terminal.DEFAULT);
         if (status != ExitCodes.OK) {
@@ -88,6 +93,7 @@ class Elasticsearch extends EnvironmentAwareCommand {
     }
 
     static int main(final String[] args, final Elasticsearch elasticsearch, final Terminal terminal) throws Exception {
+        // 执行Command.java 的main 方法
         return elasticsearch.main(args, terminal);
     }
 

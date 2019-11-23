@@ -41,3 +41,7 @@ html_docs
 backwards/
 eclipse-build
 
+distribution/src/main/resources/logs/
+distribution/src/main/resources/modules/
+distribution/src/main/resources/data/
+

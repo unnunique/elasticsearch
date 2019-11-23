@@ -59,6 +59,7 @@ public abstract class Command implements Closeable {
 
     /** Parses options for this command from args and executes it. */
     public final int main(String[] args, Terminal terminal) throws Exception {
+        // 注册打印异常日志到终端的shutDownHook.
         if (addShutdownHook()) {
             shutdownHookThread.set(new Thread(() -> {
                 try {
@@ -116,6 +117,8 @@ public abstract class Command implements Closeable {
      * Executes the command, but all errors are thrown.
      */
     void mainWithoutErrorHandling(String[] args, Terminal terminal) throws Exception {
+
+        // 解析命令行参数。
         final OptionSet options = parser.parse(args);
 
         if (options.has(helpOption)) {
