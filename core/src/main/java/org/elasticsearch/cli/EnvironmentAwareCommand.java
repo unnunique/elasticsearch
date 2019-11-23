@@ -42,6 +42,9 @@ public abstract class EnvironmentAwareCommand extends Command {
 
     @Override
     protected void execute(Terminal terminal, OptionSet options) throws Exception {
+        /**
+         * 设置path, conf, data, log 等相关设置。
+         */
         final Map<String, String> settings = new HashMap<>();
         for (final KeyValuePair kvp : settingOption.values(options)) {
             if (kvp.value.isEmpty()) {

@@ -84,6 +84,7 @@ public class InternalSettingsPreparer {
      * @return the {@link Settings} and {@link Environment} as a {@link Tuple}
      */
     public static Environment prepareEnvironment(Settings input, Terminal terminal, Map<String, String> properties) {
+        // 加载本地配置。
         // just create enough settings to build the environment, to get the config dir
         Settings.Builder output = Settings.builder();
         initializeSettings(output, input, properties);
