@@ -1,0 +1,13 @@
+{
+  "size": 0,
+  "aggs": {
+    "profit": {
+      "scripted_metric": {
+        "init_script": "params._agg.transactions = []",
+        "map_script": "def map = new HashMap();map.put('ip_src_addr', doc.ip_src_addr.value);map.put('ip_src_addr_asset_name', doc['enrichments:ip_src_addr:asset_name.keyword'].value);map.put('ip_src_addr_asset_type', doc['enrichments:ip_src_addr:asset_type.keyword'].value);map.put('ip_dst_addr', doc.ip_dst_addr.value);map.put('ip_dst_addr_asset_name', doc['enrichments:ip_dst_addr:asset_name.keyword'].value);map.put('ip_src_dst_asset_type', doc['enrichments:ip_dst_addr:asset_type.keyword'].value);map.put('threat_type_level', doc['enrichments:threat_type_level.keyword'].value);map.put('threat_type', doc['enrichments:threat_type.keyword'].value); map.put('timestamp', doc.timestamp.value);params._agg.transactions.add(map)",
+        "combine_script": "def map = new HashMap();for(t in params._agg.transactions) {def ip_src_addr = t.get('ip_src_addr');if(ip_src_addr == null){continue} if(map.get(ip_src_addr) == null) {map.put(ip_src_addr, t)} else { def tTmp = map.get(ip_src_addr); def tTmpTime = tTmp.get('timestamp'); def tTime = t.get('timestamp'); if(tTmpTime <= tTime){map.put(ip_src_addr, t)}}}  def it = params._agg.transactions.iterator(); while(it.hasNext()){def t = it.next(); def mapTmp = map.get(t.get('ip_src_addr')); if(mapTmp.get('ip_dst_addr_asset_name') == null && t.get('ip_dst_addr_asset_name')) {continue}  if(mapTmp.get('ip_dst_addr_asset_name') != null && !mapTmp.get('ip_dst_addr_asset_name').equals(t.get('ip_dst_addr_asset_name'))){it.remove(t)}} return 0",
+        "reduce_script": "return 0"
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "size": 0,
+  "aggs": {
+    "threat_type_top5": {
+      "nested": {
+        "path": "ip_nested"
+      },
+      "aggs": {
+        "threat_type_top5": {
+          "terms": {
+            "field": "ip_nested.threat_type.keyword",
+            "order": {
+              "top_num": "desc"
+            },
+            "size": 5
+          },
+          "aggs": {
+            "top_num": {
+              "sum": {
+                "field": "ip_nested.threat_type_num"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

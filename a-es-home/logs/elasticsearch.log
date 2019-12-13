@@ -1,0 +1,28 @@
+[2019-12-13T16:33:01,069][INFO ][o.e.n.Node               ] [] initializing ...
+[2019-12-13T16:33:01,474][INFO ][o.e.e.NodeEnvironment    ] [4_nhrfj] using [1] data paths, mounts [[/home (/dev/sda3)]], net usable_space [327.8gb], net total_space [378.2gb], spins? [possibly], types [ext4]
+[2019-12-13T16:33:01,475][INFO ][o.e.e.NodeEnvironment    ] [4_nhrfj] heap size [981.5mb], compressed ordinary object pointers [true]
+[2019-12-13T16:33:01,476][INFO ][o.e.n.Node               ] node name [4_nhrfj] derived from node ID [4_nhrfjrTs2xhBKytO3VvQ]; set [node.name] to override
+[2019-12-13T16:33:01,476][INFO ][o.e.n.Node               ] version[5.6.16], pid[15640], build[Unknown/Unknown], OS[Linux/4.15.0-29deepin-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_231/25.231-b11]
+[2019-12-13T16:33:01,476][INFO ][o.e.n.Node               ] JVM arguments [-Des.path.home=/home/ldl/project/elastic/elasticsearch/a-es-home, -Des.path.config=/home/ldl/project/elastic/elasticsearch/a-es-home/config, -Dlog4j2.disable.jmx=true, -Xmx1g, -Xms1g, -Djava.security.policy=/home/ldl/project/elastic/elasticsearch/a-es-home/elasticsearch.policy, -javaagent:/home/ldl/toolDev/idea-IU-192.6817.14/lib/idea_rt.jar=43025:/home/ldl/toolDev/idea-IU-192.6817.14/bin, -Dfile.encoding=UTF-8]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [aggs-matrix-stats]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [ingest-common]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [lang-expression]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [lang-groovy]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [lang-mustache]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [lang-painless]
+[2019-12-13T16:33:03,906][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [parent-join]
+[2019-12-13T16:33:03,907][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [percolator]
+[2019-12-13T16:33:03,907][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [reindex]
+[2019-12-13T16:33:03,907][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [transport-netty3]
+[2019-12-13T16:33:03,907][INFO ][o.e.p.PluginsService     ] [4_nhrfj] loaded module [transport-netty4]
+[2019-12-13T16:33:03,907][INFO ][o.e.p.PluginsService     ] [4_nhrfj] no plugins loaded
+[2019-12-13T16:33:06,782][INFO ][o.e.d.DiscoveryModule    ] [4_nhrfj] using discovery type [zen]
+[2019-12-13T16:33:07,351][INFO ][o.e.n.Node               ] initialized
+[2019-12-13T16:33:07,351][INFO ][o.e.n.Node               ] [4_nhrfj] starting ...
+[2019-12-13T16:33:07,381][INFO ][i.n.u.i.PlatformDependent] Your platform does not provide complete low-level API for accessing direct buffers reliably. Unless explicitly requested, heap buffer will always be preferred to avoid potential system instability.
+[2019-12-13T16:33:07,488][INFO ][o.e.t.TransportService   ] [4_nhrfj] publish_address {127.0.0.1:9300}, bound_addresses {[::1]:9300}, {127.0.0.1:9300}
+[2019-12-13T16:33:07,505][WARN ][o.e.b.BootstrapChecks    ] [4_nhrfj] max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+[2019-12-13T16:33:10,664][INFO ][o.e.c.s.ClusterService   ] [4_nhrfj] new_master {4_nhrfj}{4_nhrfjrTs2xhBKytO3VvQ}{HD8ZPZvbRAyiA8aQLxLQJg}{127.0.0.1}{127.0.0.1:9300}, reason: zen-disco-elected-as-master ([0] nodes joined)
+[2019-12-13T16:33:10,708][INFO ][o.e.h.n.Netty4HttpServerTransport] [4_nhrfj] publish_address {127.0.0.1:9200}, bound_addresses {[::1]:9200}, {127.0.0.1:9200}
+[2019-12-13T16:33:10,708][INFO ][o.e.n.Node               ] [4_nhrfj] started
+[2019-12-13T16:33:10,755][INFO ][o.e.g.GatewayService     ] [4_nhrfj] recovered [0] indices into cluster_state

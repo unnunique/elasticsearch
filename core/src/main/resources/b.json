@@ -1,0 +1,70 @@
+{
+  "demo_2019.11.26" : {
+    "aliases" : { },                                   // 别名
+    "mappings" : {
+      "suricata_doc" : {
+        "_all" : {
+          "enabled" : false                            //禁用_all 查询
+        },
+        "dynamic_templates" : [                        // 动态模板
+          {
+            "timestamps" : {
+              "match" : "*:ts",
+              "mapping" : {
+                "format" : "epoch_millis",
+                "type" : "date"
+              }
+            }
+          }
+        ],
+        "properties" : {                               // 属性
+          "user_agent" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      }
+    },
+    "settings" : {
+      "index" : {
+        "codec" : "best_compression",                     // 采用best_compression 使得segment获得更好的压缩率，
+        "refresh_interval" : "10s",                       // 多长时间，会把内存中的数据刷新到段中，默认1s，所以说es是近实时的。
+        "number_of_shards" : "2",                         // 主分片数量
+        "translog" : {                                    //
+          "flush_threshold_size" : "1g",                  // 一旦写前日志达到这个值，则触发flush
+          "sync_interval" : "10s",                        // 多长时间同步一次写前日志。
+          "durability" : "async"                          // 数据从内存同步到设备的机制。这时候会有bug。设备断电或者其他原因，可能数据丢失。
+        },
+        "provided_name" : "demo_2019.11.26",              // 索引对外提供的名字，索引名字
+        "merge" : {                                       // 段合并相关配置：
+          "scheduler" : {                                 //
+            "max_thread_count" : "1"                      // 段合并最大线程数，对于写频繁，以及用ssd，数量可调整。
+          },                                              //
+          "policy" : {                                    // 分片下面的段（Segment），进行段合并的策略
+            "max_merge_at_once" : "15",                   // 最大一次合并多少个段，默认一次最多归并 10 个 segment，
+            "max_merged_segment" : "3g",                  // 默认 5 GB，大于这个大小的segment，不用参与归并。调用forcemerge api合并除外。
+            "segments_per_tier" : "30",                   // ？？？？
+            "floor_segment" : "10mb"                      // floor_segment 指的是小于这个大小的 segment，优先被归并。默认值2m
+          }
+        },
+        "creation_date" : "1574697613816",                // 创建时间
+        "store" : {                                       // 存储相关
+          "type" : "niofs",                               // 采用niofs 存储，在lunix 格式下，获得更好的效果
+          "throttle" : {                                  //
+            "max_bytes_per_sec" : "50mb"                  // 弃用的配置，值得类似于ssd和普通磁盘的速度
+          }
+        },
+        "number_of_replicas" : "0",                       // 副本分片数量
+        "uuid" : "evV4ETB-T_2eW8oFr-r9Mg",                // 索引唯一标志
+        "version" : {                                     // 版本
+          "created" : "5060299"                           // 创建时候的版本号
+        }
+      }
+    }
+  }
+}

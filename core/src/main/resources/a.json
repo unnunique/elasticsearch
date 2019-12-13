@@ -1,0 +1,59 @@
+{
+  "size": 0,
+  "aggs": {
+    "ip_src_addr": {
+      "terms": {
+        "field": "ip_src_addr",
+        "size": 2147483647
+      },
+      "aggs": {
+        "ip_dst_addr": {
+          "terms": {
+            "field": "ip_dst_addr",
+            "size": 2147483647
+          },
+          "aggs": {
+            "threat_type": {
+              "terms": {
+                "field": "enrichments:threat_type.keyword",
+                "size": 2147483647
+              },
+              "aggs": {
+                "topHits": {
+                  "top_hits": {
+                    "_source": ["enrichments:threat_type_level"],
+                    "size": 1
+                  }
+                }
+              }
+            },
+            "threat_name": {
+              "terms": {
+                "field": "enrichments:threat_name.keyword",
+                "size": 2147483647
+              },
+              "aggs": {
+                "topHits": {
+                  "top_hits": {
+                    "_source": ["enrichments:threat_name_level"],
+                    "size": 1
+                  }
+                }
+              }
+            },
+            "topHIts": {
+              "top_hits": {
+                "_source": ["ip_src_addr", "ip_dst_addr", "enrichments:geo:ip_src_addr:country_cn", "enrichments:geo:ip_dst_addr:country_cn",
+                  "enrichments:ip_src_addr:asset_name", "enrichments:ip_dst_addr:asset_name", "enrichments:ip_src_addr:asset_type", "enrichments:ip_dst_addr:asset_type",
+                  "enrichments:geo:ip_src_addr:asset_group", "enrichments:geo:ip_dst_addr:asset_group", "enrichments:ip_dst_addr_asset_id", "enrichments:ip_src_addr_asset_id",
+                  "enrichments:direction"
+                ],
+                "size": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

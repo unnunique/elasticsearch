@@ -1,0 +1,22 @@
+{
+  "size": 0,
+  "aggs": {
+    "ip_src_addr": {
+      "terms": {
+        "field": "ip_src_addr",
+        "size": 2147483647
+      },
+      "aggs": {
+        "topHits": {
+          "top_hits": {
+            "_source": ["enrichments:ip_src_addr:asset_name", "enrichments:ip_src_addr:asset_type"],
+            "sort": {
+              "timestamp": "desc"
+            },
+            "size": 1
+          }
+        }
+      }
+    }
+  }
+}
